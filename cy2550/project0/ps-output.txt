@@ -1,0 +1,159 @@
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 16:24 ?        00:00:00 /sbin/init splash
+root           2       0  0 16:24 ?        00:00:00 [kthreadd]
+root           3       2  0 16:24 ?        00:00:00 [rcu_gp]
+root           4       2  0 16:24 ?        00:00:00 [rcu_par_gp]
+root           5       2  0 16:24 ?        00:00:00 [slub_flushwq]
+root           6       2  0 16:24 ?        00:00:00 [netns]
+root           8       2  0 16:24 ?        00:00:00 [kworker/0:0H-events_highpri]
+root           9       2  0 16:24 ?        00:00:00 [kworker/u8:0-flush-254:0]
+root          10       2  0 16:24 ?        00:00:00 [mm_percpu_wq]
+root          11       2  0 16:24 ?        00:00:00 [rcu_tasks_rude_kthread]
+root          12       2  0 16:24 ?        00:00:00 [rcu_tasks_trace_kthread]
+root          13       2  0 16:24 ?        00:00:00 [ksoftirqd/0]
+root          14       2  0 16:24 ?        00:00:00 [rcu_sched]
+root          15       2  0 16:24 ?        00:00:00 [migration/0]
+root          17       2  0 16:24 ?        00:00:00 [cpuhp/0]
+root          18       2  0 16:24 ?        00:00:00 [cpuhp/1]
+root          19       2  0 16:24 ?        00:00:00 [migration/1]
+root          20       2  0 16:24 ?        00:00:00 [ksoftirqd/1]
+root          22       2  0 16:24 ?        00:00:00 [kworker/1:0H-events_highpri]
+root          23       2  0 16:24 ?        00:00:00 [cpuhp/2]
+root          24       2  0 16:24 ?        00:00:00 [migration/2]
+root          25       2  0 16:24 ?        00:00:00 [ksoftirqd/2]
+root          26       2  0 16:24 ?        00:00:00 [kworker/2:0-cgroup_destroy]
+root          27       2  0 16:24 ?        00:00:00 [kworker/2:0H-events_highpri]
+root          28       2  0 16:24 ?        00:00:00 [cpuhp/3]
+root          29       2  0 16:24 ?        00:00:00 [migration/3]
+root          30       2  0 16:24 ?        00:00:00 [ksoftirqd/3]
+root          31       2  0 16:24 ?        00:00:00 [kworker/3:0-mm_percpu_wq]
+root          32       2  0 16:24 ?        00:00:00 [kworker/3:0H-events_highpri]
+root          34       2  0 16:24 ?        00:00:00 [kdevtmpfs]
+root          35       2  0 16:24 ?        00:00:00 [inet_frag_wq]
+root          36       2  0 16:24 ?        00:00:00 [kauditd]
+root          37       2  0 16:24 ?        00:00:00 [khungtaskd]
+root          38       2  0 16:24 ?        00:00:00 [oom_reaper]
+root          39       2  0 16:24 ?        00:00:00 [kworker/u8:1-flush-254:0]
+root          40       2  0 16:24 ?        00:00:00 [writeback]
+root          41       2  0 16:24 ?        00:00:00 [kcompactd0]
+root          42       2  0 16:24 ?        00:00:00 [ksmd]
+root          44       2  0 16:24 ?        00:00:00 [khugepaged]
+root          45       2  0 16:24 ?        00:00:00 [kintegrityd]
+root          46       2  0 16:24 ?        00:00:00 [kblockd]
+root          47       2  0 16:24 ?        00:00:00 [blkcg_punt_bio]
+root          48       2  0 16:24 ?        00:00:00 [kworker/1:1-ipv6_addrconf]
+root          49       2  0 16:24 ?        00:00:00 [tpm_dev_wq]
+root          50       2  0 16:24 ?        00:00:00 [edac-poller]
+root          51       2  0 16:24 ?        00:00:00 [devfreq_wq]
+root          52       2  0 16:24 ?        00:00:00 [watchdogd]
+root          53       2  0 16:24 ?        00:00:00 [kworker/3:1H-kblockd]
+root          54       2  0 16:24 ?        00:00:00 [kswapd0]
+root          62       2  0 16:24 ?        00:00:00 [kthrotld]
+root          64       2  0 16:24 ?        00:00:00 [irq/49-ACPI:Ged]
+root          65       2  0 16:24 ?        00:00:00 [acpi_thermal_pm]
+root          66       2  0 16:24 ?        00:00:00 [xenbus_probe]
+root          67       2  0 16:24 ?        00:00:00 [mld]
+root          68       2  0 16:24 ?        00:00:00 [ipv6_addrconf]
+root          73       2  0 16:24 ?        00:00:00 [kstrp]
+root          78       2  0 16:24 ?        00:00:00 [zswap-shrink]
+root          79       2  0 16:24 ?        00:00:00 [kworker/u9:0]
+root          81       2  0 16:24 ?        00:00:00 [kworker/2:2-events]
+root         147       2  0 16:24 ?        00:00:00 [kworker/1:1H-kblockd]
+root         162       2  0 16:24 ?        00:00:00 [kworker/0:1H-kblockd]
+root         168       2  0 16:24 ?        00:00:00 [kworker/2:1H-kblockd]
+root         175       2  0 16:24 ?        00:00:00 [kworker/1:2-cgroup_destroy]
+root         201       2  0 16:24 ?        00:00:00 [kworker/0:2-ipv6_addrconf]
+root         247       2  0 16:24 ?        00:00:00 [jbd2/vda2-8]
+root         248       2  0 16:24 ?        00:00:00 [ext4-rsv-conver]
+root         268       2  0 16:24 ?        00:00:00 [hwrng]
+root         309       1  0 16:24 ?        00:00:00 /lib/systemd/systemd-journald
+root         324       2  0 16:24 ?        00:00:00 [kworker/u8:3-events_unbound]
+root         325       2  0 16:24 ?        00:00:00 [psimon]
+root         348       1  0 16:24 ?        00:00:00 /lib/systemd/systemd-udevd
+root         358       2  0 16:24 ?        00:00:00 [psimon]
+root         508       1  0 16:24 ?        00:00:00 dhclient -4 -v -i -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases -I -df /var/lib/dhcp/dhclient6.eth0.leases eth0
+root         557       1  0 16:24 ?        00:00:00 /usr/sbin/haveged --Foreground --verbose=1
+systemd+     559       1  0 16:24 ?        00:00:00 /lib/systemd/systemd-timesyncd
+root         571       2  0 16:24 ?        00:00:00 [psimon]
+message+     572       1  0 16:24 ?        00:00:00 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+polkitd      574       1  0 16:24 ?        00:00:00 /usr/lib/polkit-1/polkitd --no-debug
+root         575       1  0 16:24 ?        00:00:00 /usr/sbin/qemu-ga
+root         576       1  0 16:24 ?        00:00:00 /lib/systemd/systemd-logind
+root         590       2  0 16:24 ?        00:00:00 [psimon]
+root         602       1  0 16:24 ?        00:00:00 /usr/sbin/NetworkManager --no-daemon
+root         614       1  0 16:24 ?        00:00:00 /usr/sbin/ModemManager
+root         782       2  0 16:24 ?        00:00:00 [rpciod]
+root         783       2  0 16:24 ?        00:00:00 [xprtiod]
+root         785       1  0 16:24 ?        00:00:00 /usr/sbin/cron -f
+root         788       1  0 16:24 ?        00:00:00 /usr/sbin/lightdm
+root         799     788  0 16:24 tty7     00:00:04 /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+root         800       1  0 16:24 tty1     00:00:00 /sbin/agetty -o -p -- \u --noclear - linux
+root         801       1  0 16:24 ?        00:00:00 /sbin/agetty -o -p -- \u --keep-baud 115200,57600,38400,9600 - vt220
+root         810       2  0 16:24 ?        00:00:00 [scsi_eh_0]
+root         811       2  0 16:24 ?        00:00:00 [scsi_tmf_0]
+root         812       2  0 16:24 ?        00:00:00 [usb-storage]
+root         813       2  0 16:24 ?        00:00:00 [uas]
+root         833       2  0 16:24 ?        00:00:00 [psimon]
+rtkit        863       1  0 16:24 ?        00:00:00 /usr/libexec/rtkit-daemon
+root         947     788  0 16:26 ?        00:00:00 lightdm --session-child 15 26
+daniel       954       1  0 16:26 ?        00:00:00 /lib/systemd/systemd --user
+daniel       955     954  0 16:26 ?        00:00:00 (sd-pam)
+root         969       2  0 16:26 ?        00:00:00 [psimon]
+daniel       971     954  0 16:26 ?        00:00:00 /usr/bin/pipewire
+daniel       972     954  0 16:26 ?        00:00:00 /usr/bin/pipewire -c filter-chain.conf
+daniel       973     954  0 16:26 ?        00:00:00 /usr/bin/wireplumber
+daniel       974     954  0 16:26 ?        00:00:00 /usr/bin/pipewire-pulse
+daniel       976     954  0 16:26 ?        00:00:00 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+daniel       977     954  0 16:26 ?        00:00:00 /usr/bin/gnome-keyring-daemon --foreground --components=pkcs11,secrets --control-directory=/run/user/1000/keyring
+daniel      1003     947  0 16:26 ?        00:00:00 xfce4-session
+daniel      1048    1003  0 16:26 ?        00:00:00 /usr/bin/ssh-agent x-session-manager
+daniel      1058     954  0 16:26 ?        00:00:00 /usr/libexec/at-spi-bus-launcher
+daniel      1065    1058  0 16:26 ?        00:00:00 /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 11 --address=unix:path=/run/user/1000/at-spi/bus_0
+daniel      1077     954  0 16:26 ?        00:00:00 /usr/libexec/at-spi2-registryd --use-gnome-session
+daniel      1089     954  0 16:26 ?        00:00:00 /usr/bin/gpg-agent --supervised
+daniel      1091    1003  0 16:26 ?        00:00:01 xfwm4 --display :0.0 --sm-client-id 28db6e4f0-61fc-4dec-a7a1-ba286c2fe79d
+daniel      1095     954  0 16:26 ?        00:00:00 /usr/libexec/gvfsd
+daniel      1101     954  0 16:26 ?        00:00:00 /usr/libexec/gvfsd-fuse /run/user/1000/gvfs -f
+daniel      1125    1003  0 16:26 ?        00:00:00 xfsettingsd --display :0.0 --sm-client-id 2c91b937f-b1bd-48de-9e55-340863f6fefc
+root        1129       1  0 16:26 ?        00:00:00 /usr/libexec/upowerd
+daniel      1135    1003  0 16:26 ?        00:00:00 xfce4-panel --display :0.0 --sm-client-id 2cbe22504-b65a-4e88-b207-48c2d0b9c833
+daniel      1140    1003  0 16:26 ?        00:00:00 Thunar --sm-client-id 278c5a42e-daf5-4520-a9b7-78ae28df02da --daemon
+daniel      1146    1003  0 16:26 ?        00:00:00 xfdesktop --display :0.0 --sm-client-id 26dbfb655-66f1-44c3-a24e-8c56feb821a4
+daniel      1150    1135  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libwhiskermenu.so 1 16777223 whiskermenu Whisker Menu Show a menu to easily access installed applications
+daniel      1154    1135  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libsystray.so 14 16777229 systray Status Tray Plugin Provides status notifier items (application indicators) and legacy systray items
+daniel      1155    1135  0 16:26 ?        00:00:03 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libgenmon.so 15 16777230 genmon Generic Monitor Show output of a command.
+daniel      1156    1135  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libpulseaudio-plugin.so 16 16777231 pulseaudio PulseAudio Plugin Adjust the audio volume of the PulseAudio sound system
+daniel      1157    1135  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libnotification-plugin.so 17 16777232 notification-plugin Notification Plugin Notification plugin for the Xfce panel
+daniel      1158    1135  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libxfce4powermanager.so 18 16777233 power-manager-plugin Power Manager Plugin Display the battery levels of your devices and control the brightness of your display
+daniel      1164    1135  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/aarch64-linux-gnu/xfce4/panel/plugins/libactions.so 2200 16777234 actions Action Buttons Log out, lock or other system actions
+daniel      1193     954  0 16:26 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/notifyd/xfce4-notifyd
+daniel      1220    1003  0 16:26 ?        00:00:00 xfce4-power-manager --restart --sm-client-id 298ebddfb-93ce-4f04-b3f6-6a26cb3b87ef
+daniel      1239    1003  0 16:26 ?        00:00:00 nm-applet
+daniel      1240       1  0 16:26 ?        00:00:00 xcape -e Super_L Control_L Escape
+daniel      1243    1003  0 16:26 ?        00:00:00 xiccd
+daniel      1248    1003  0 16:26 ?        00:00:00 /usr/libexec/geoclue-2.0/demos/agent
+daniel      1255       1  0 16:26 ?        00:00:00 /usr/bin/spice-vdagent
+daniel      1269    1003  0 16:26 ?        00:00:00 light-locker
+colord      1270       1  0 16:26 ?        00:00:00 /usr/libexec/colord
+daniel      1279     954  0 16:26 ?        00:00:00 /usr/libexec/dconf-service
+daniel      1289    1003  0 16:26 ?        00:00:00 /usr/bin/python3 /usr/bin/blueman-applet
+root        1291       1  0 16:26 ?        00:00:01 /usr/sbin/spice-vdagentd
+daniel      1301    1003  0 16:26 ?        00:00:00 /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+daniel      1354     954  0 16:26 ?        00:00:00 /usr/libexec/gvfs-udisks2-volume-monitor
+root        1377       1  0 16:26 ?        00:00:00 /usr/libexec/udisks2/udisksd
+daniel      1396     954  0 16:26 ?        00:00:00 /usr/libexec/gvfs-goa-volume-monitor
+daniel      1403     954  0 16:26 ?        00:00:00 /usr/libexec/gvfs-afc-volume-monitor
+daniel      1409     954  0 16:26 ?        00:00:00 /usr/libexec/gvfs-gphoto2-volume-monitor
+daniel      1417     954  0 16:26 ?        00:00:00 /usr/libexec/gvfs-mtp-volume-monitor
+daniel      1438    1095  0 16:26 ?        00:00:00 /usr/libexec/gvfsd-trash --spawner :1.20 /org/gtk/gvfs/exec_spaw/0
+daniel      1446     954  0 16:26 ?        00:00:00 /usr/libexec/gvfsd-metadata
+daniel      1467     954  0 16:26 ?        00:00:00 /usr/libexec/bluetooth/obexd
+daniel      2111       1  0 16:27 ?        00:00:02 /usr/bin/qterminal
+daniel      2114    2111  0 16:27 pts/0    00:00:02 /usr/bin/zsh
+root        4204       2  0 16:31 ?        00:00:00 [kworker/0:0-events]
+root        5984       2  0 16:35 ?        00:00:00 [kworker/3:2-mm_percpu_wq]
+root        6337       2  0 16:36 ?        00:00:00 [kworker/2:1-mm_percpu_wq]
+daniel      6411     954  0 16:36 ?        00:00:00 /usr/lib/aarch64-linux-gnu/xfce4/xfconf/xfconfd
+root        6666       2  0 16:37 ?        00:00:00 [kworker/0:1-events]
+root        8830       2  0 16:40 ?        00:00:00 [kworker/3:1]
+daniel      8991    2114  0 16:41 pts/0    00:00:00 ps -ef

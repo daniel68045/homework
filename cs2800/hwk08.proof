@@ -1,0 +1,773 @@
+(definec in (a :all x :tl) :bool
+  (and (consp x)
+       (or (== a (car x))
+           (in a (cdr x)))))
+
+(definec ap (x y :tl) :tl
+  (if (endp x) y
+      (cons (car x)
+            (ap (cdr x) y))))
+
+(definec rv (x :tl) :tl
+  (if (endp x) x
+      (ap (rv (cdr x))
+          (list (car x)))))
+
+(definec rem-dups (x :tl) :tl
+  (cond ((endp x)               x)
+        ((in (car x) (cdr x))   (rem-dups (cdr x)))
+        (t                      (cons (car x) 
+				      (rem-dups (cdr x))))))
+
+; You get this property for free, since we did it in class.  See
+; l26.proof for the proof checker proof. You will have to do similar
+; proofs for this homework.
+
+(property ap-assoc (x y z :tl)
+  (== (ap (ap x y) z)
+      (ap x (ap y z))))
+
+; The first two lemmas are proof checker proofs of in-ap using
+; different induction schemes.
+
+Lemma in-ap1:
+(=> (^ (tlp x) (tlp y))
+    (== (in a (ap x y))
+        (v (in a x) (in a y))))
+
+Proof by: Induction on (in a x)
+
+Base Case:
+x = nil (empty list)
+
+Context:
+C1: (tlp x)
+C2: (tlp y)
+C3: (! (consp x))
+
+Derived Context:
+D1: (== x nil) {from C1, C3, def of tlp}
+
+Goal:
+(== (in a (ap x y)) (v (in a x) (in a y)))
+
+Proof:
+  (in a (ap x y))
+== {def ap, D1}
+  (in a y)
+== {def v, D1}
+  (v (in a nil) (in a y))
+== {def in for nil}
+  (in a y)
+QED for base case.
+
+Inductive Case:
+x = (cons h t) (non-empty list)
+
+Context:
+C1: (tlp x)
+C2: (tlp y)
+C3: (consp x)
+C4: (=> (and (tlp (cdr x))
+             (tlp y))
+        (== (in a (ap (cdr x) y))
+            (v (in a (cdr x))
+               (in a y))))  Inductive Hypothesis
+               
+Derived Context:
+D1: (tlp (cdr x)) {from C1, def of tlp}
+
+Goal:
+(== (in a (ap x y)) (v (in a x) (in a y)))
+
+Proof:
+  (in a (ap x y))
+== {def ap, C3}
+  (in a (cons (car x) (ap (cdr x) y)))
+== {def in for cons}
+  (v (== a (car x))
+     (in a (ap (cdr x) y)))
+== {C4, IH applied}
+  (v (== a (car x))
+     (v (in a (cdr x))
+        (in a y)))
+== {def in for cons, RHS expanded}
+  (v (in a (cons (car x) (cdr x)))
+     (in a y))
+== {def of v}
+  (v (in a x)
+     (in a y))
+QED for inductive case.
+
+Lemma in-ap2:
+(=> (^ (tlp x) (tlp y))
+    (== (in a (ap x y))
+        (v (in a x) (in a y))))
+
+Proof by: Induction on (tlp x)
+
+Base Case:
+x = nil (empty list)
+Context:
+C1: (tlp x)
+C2: (tlp y)
+C3: (! (consp x))
+
+Derived Context:
+D1: (== x nil) {from C1, C3, def of tlp}
+
+Goal:
+(== (in a (ap x y)) (v (in a x) (in a y)))
+
+Proof:
+  (in a (ap x y))
+== {def ap, D1}
+  (in a y)
+== {def v, D1}
+  (v (in a nil) (in a y))
+== {def in for nil}
+  (in a y)
+QED for base case.
+
+Inductive Case:
+x = (cons h t) (non-empty list)
+
+Context:
+C1: (tlp x)
+C2: (tlp y)
+C3: (consp x)
+C4: (=> (and (tlp (cdr x))
+             (tlp y))
+        (== (in a (ap (cdr x) y))
+            (v (in a (cdr x))
+               (in a y))))  Inductive Hypothesis
+               
+Derived Context:
+D1: (tlp (cdr x)) {from C1, def of tlp}
+
+Goal:
+(== (in a (ap x y)) (v (in a x) (in a y)))
+
+Proof:
+  (in a (ap x y))
+== {def ap, C3}
+  (in a (cons (car x) (ap (cdr x) y)))
+== {def in for cons}
+  (v (== a (car x))
+     (in a (ap (cdr x) y)))
+== {C4, IH applied}
+  (v (== a (car x))
+     (v (in a (cdr x))
+        (in a y)))
+== {def in for cons, RHS expanded}
+  (v (in a (cons (car x) (cdr x)))
+     (in a y))
+== {def of v}
+  (v (in a x)
+     (in a y))
+QED for inductive case.
+
+#|
+
+ Which of the following induction schemes is not viable
+ to prove Conjecture in-ap2?
+ 
+ 1. (ap x y)
+ 2. (in a y)
+
+ Explain why not by showing where a proof attempt using the non-viable
+ induction scheme fails.
+
+Base Case:
+Context:
+C1: (ap x y) = y
+Derived Context:
+D1: (== x nil) {from def of ap}
+
+Goal:
+(== (in a (ap x y)) (v (in a x) (in a y)))
+
+Proof:
+  (in a (ap x y))
+== {D1, def of ap}
+  (in a y)
+== {D1, def in for nil}
+  (v (in a nil) (in a y))
+== {simplify}
+  (in a y)
+
+Base case holds.
+
+Inductive Case:
+Context:
+C1: (ap x y) = (cons (car x) (ap (cdr x) y))
+C2: Inductive Hypothesis:
+    (=> (^ (tlp (cdr x))
+            (tlp y))
+        (== (in a (ap (cdr x) y))
+            (v (in a (cdr x))
+               (in a y))))
+
+Goal:
+(== (in a (ap x y)) (v (in a x) (in a y)))
+
+Proof:
+  (in a (ap x y))
+== {C1, def ap}
+  (in a (cons (car x) (ap (cdr x) y)))
+== {def in for cons}
+  (v (== a (car x))
+     (in a (ap (cdr x) y)))
+
+At this point, we cannot continue the proof without an induction on (tlp x)
+to expand (in a x). The structure of (ap x y) does not provide a way to reason
+about the recursive nature of x.The induction scheme (ap x y) is not viable because it does not align
+with the recursive structure of x or the definitions of in and tlp. 
+
+|#
+
+; Notice that you can use lemmas you have proved in subsequent proofs,
+; e.g., you can use in-ap1 or in-ap2 (whichever you manage to prove) in
+; the proof of in-rv or any other subsequent lemma.
+
+Lemma in-rv:
+(=> (tlp x)
+    (== (in a (rv x))
+        (in a x)))
+
+Proof by: Induction on (rv x)
+
+Base Case:
+x = nil (empty list)
+
+Context:
+C1: (tlp x)
+C2: (! (consp x))
+
+Derived Context:
+D1: (== x nil) {from C1, C2, def of tlp}
+
+Goal:
+(== (in a (rv x)) (in a x))
+
+Proof:
+  (in a (rv x))
+== {def rv, D1}
+  (in a nil)
+== {def in for nil}
+  nil
+== {D1}
+  (in a x)
+QED for base case.
+
+Inductive Case:
+x = (cons h t) (non-empty list)
+Context:
+C1: (tlp x)
+C2: (consp x)
+C3: (=> (tlp (cdr x))
+        (== (in a (rv (cdr x))) (in a (cdr x))))  Inductive Hypothesis
+        
+Derived Context:
+D1: (tlp (cdr x)) {from C1, def of tlp}
+
+Goal:
+(== (in a (rv x)) (in a x))
+
+Proof:
+  (in a (rv x))
+== {def rv, C2}
+  (in a (ap (rv (cdr x)) (list (car x))))
+== {in-ap1, applied}
+  (v (in a (rv (cdr x)))
+     (in a (list (car x))))
+== {def in for list}
+  (v (in a (rv (cdr x)))
+     (== a (car x)))
+== {C3, IH applied}
+  (v (in a (cdr x))
+     (== a (car x)))
+== {def in for cons}
+  (in a x)
+QED for inductive case.
+
+; This is a proof of in-rem-dups
+; Use whatever induction scheme you like.
+Lemma in-rem-dups:
+(=> (tlp x)
+    (== (in a (rem-dups x))
+        (in a x)))
+
+Base Case:
+x = nil (empty list)
+
+Context:
+C1: (tlp x)
+C2: (! (consp x))
+
+Derived Context:
+D1: (== x nil) {from C1, C2, def of tlp}
+
+Goal:
+(== (in a (rem-dups x)) (in a x))
+
+Proof:
+  (in a (rem-dups x))
+== {def rem-dups, D1}
+  (in a nil)
+== {def in for nil}
+  nil
+== {D1}
+  (in a x)
+QED for base case.
+
+Inductive Case:
+x = (cons h t) (non-empty list)
+
+Context:
+C1: (tlp x)
+C2: (consp x)
+C3: (=> (tlp (cdr x))
+        (== (in a (rem-dups (cdr x))) (in a (cdr x))))  Inductive Hypothesis
+        
+Derived Context:
+D1: (tlp (cdr x)) {from C1, def of tlp}
+
+Goal:
+(== (in a (rem-dups x)) (in a x))
+
+Proof:
+  (in a (rem-dups x))
+== {def rem-dups, C2}
+  (cond ((in (car x) (cdr x)) (in a (rem-dups (cdr x))))
+        (t                    (in a (cons (car x) (rem-dups (cdr x))))))
+        
+Case 1: (in (car x) (cdr x)) is true:
+  (in a (rem-dups x))
+== {case 1, IH applied}
+  (in a (rem-dups (cdr x)))
+== {C3, IH applied}
+  (in a (cdr x))
+== {def in for cons}
+  (in a x)
+  
+Case 2: (in (car x) (cdr x)) is false:
+  (in a (rem-dups x))
+== {case 2, def rem-dups}
+  (in a (cons (car x) (rem-dups (cdr x))))
+== {def in for cons}
+  (v (== a (car x))
+     (in a (rem-dups (cdr x))))
+== {C3, IH applied}
+  (v (== a (car x))
+     (in a (cdr x)))
+== {def in for cons}
+  (in a x)
+QED for inductive case.
+
+#|
+
+ Formalize this property and prove it using the above lemmas.
+ Hint: do not use induction, just equational reasoning!
+
+ (property (el :all a b c d :tl)
+   (== (in el (rem-dups (rv (rem-dups (rv (ap (rv (ap (rv (ap a b))
+                                                      (ap a c))) 
+                                              d))))))
+       (v (in el a) (in el b) (in el c) (in el d))))
+
+|#
+
+Conjecture sanity-check:
+
+Proof:
+  (in el (rem-dups (rv (rem-dups (rv (ap (rv (ap (rv (ap a b))
+                                                (ap a c))) 
+                                        d))))))
+== {apply in-rem-dups}
+  (in el (rv (rem-dups (rv (ap (rv (ap (rv (ap a b))
+                                      (ap a c))) 
+                              d))))))
+== {apply in-rv}
+  (in el (rem-dups (rv (ap (rv (ap (rv (ap a b))
+                                  (ap a c))) 
+                          d)))))
+== {apply in-rem-dups}
+  (in el (rv (ap (rv (ap (rv (ap a b))
+                        (ap a c))) 
+                d))))
+== {apply in-rv}
+  (in el (ap (rv (ap (rv (ap a b))
+                    (ap a c))) 
+            d)))
+== {apply in-ap1}
+  (v (in el (rv (ap (rv (ap a b))
+                   (ap a c))))
+     (in el d))
+== {apply in-rv}
+  (v (in el (ap (rv (ap a b))
+                (ap a c)))
+     (in el d))
+== {apply in-ap1}
+  (v (v (in el (rv (ap a b)))
+         (in el (ap a c)))
+     (in el d))
+== {apply in-rv}
+  (v (v (in el (ap a b))
+         (in el (ap a c)))
+     (in el d))
+== {apply in-ap1}
+  (v (v (v (in el a) (in el b))
+         (v (in el a) (in el c)))
+     (in el d))
+== {simplify nested v expressions}
+  (v (in el a)
+     (v (in el b)
+        (v (in el c)
+           (in el d))))
+== {rearrange terms}
+  (v (in el a) (in el b) (in el c) (in el d)).
+QED.
+
+; Prove the following lemma. You will need helper lemmas.
+; Hint: the lecture notes are your friend.
+Lemma rv-rv:
+(=> (tlp x)
+    (== (rv (rv x))
+        x))
+
+Base Case:
+x = nil (empty list)
+
+Context:
+C1: (tlp x)
+C2: (! (consp x))
+
+Derived Context:
+D1: (== x nil) {from C1, C2, def of tlp}
+
+Goal:
+(== (rv (rv x)) x)
+
+Proof:
+  (rv (rv x))
+== {D1, def of rv}
+  (rv nil)
+== {def of rv}
+  nil
+== {D1}
+  x
+QED for base case.
+
+Inductive Case:
+x = (cons h t) (non-empty list)
+
+Context:
+C1: (tlp x)
+C2: (consp x)
+C3: (=> (tlp (cdr x))
+        (== (rv (rv (cdr x))) (cdr x)))  Inductive Hypothesis
+        
+Derived Context:
+D1: (tlp (cdr x)) {from C1, def of tlp}
+
+Goal:
+(== (rv (rv x)) x)
+
+Proof:
+  (rv (rv x))
+== {def of rv, C2}
+  (rv (ap (rv (cdr x)) (list (car x))))
+== {apply rv-rv to (cdr x), using IH}
+  (rv (ap (cdr x) (list (car x))))
+== {def of rv}
+  (ap (rv (list (car x))) (list (car x)))
+== {def of rv}
+  (ap (list (car x)) (list (car x)))
+== {def of ap}
+  (cons (car x) (cdr x))
+== {def of cons}
+  x
+QED for inductive case.
+
+; Here is another function that your mentor wants you to reason about.
+(definec make-n-xs (n :nat x :all) :tl
+  (if (zp n) nil
+      (cons x
+            (make-n-xs (1- n) x))))
+
+; She claims that the following is a theorem you should prove.
+; Actually, it's *not* a theorem. Think about why and change the RHS as
+; little as possible to make this a theorem and prove it. You can only
+; change the RHS.
+;
+; Then prove it using whatever induction scheme you like.
+
+Lemma in-make-n-xs
+(=> (natp x)
+    (== (in a (make-n-xs x y))
+        (and (not (zpx))(== a y)))) Corrected
+
+Base Case:
+x = 0
+
+Context:
+C1: (natp x)
+C2: (zp x)
+
+Derived Context:
+D1: (== x 0) {from C1, C2, def of zp}
+
+Goal:
+(== (in a (make-n-xs x y))
+    (and (not (zp x))
+         (== a y)))
+
+Proof:
+  (in a (make-n-xs x y))
+== {D1, def of make-n-xs}
+  (in a nil)
+== {def of in for nil}
+  nil
+== {D1}
+  (and (not (zp x)) (== a y))
+== {simplify, D1}
+  nil
+QED for base case.
+
+Inductive Case:
+x = (1 + n), where \(n\) is a natural number
+
+Context:
+C1: (natp x)
+C2: (! (zp x))
+C3: (=> (natp (1- x))
+        (== (in a (make-n-xs (1- x) y))
+            (and (not (zp (1- x)))
+                 (== a y))))  Inductive Hypothesis
+                 
+Derived Context:
+D1: (natp (1- x)) {from C1, def of natp}
+
+Goal:
+(== (in a (make-n-xs x y))
+    (and (not (zp x))
+         (== a y)))
+
+Proof:
+  (in a (make-n-xs x y))
+== {def of make-n-xs, C2}
+  (in a (cons y (make-n-xs (1- x) y)))
+== {def of in for cons}
+  (or (== a y)
+      (in a (make-n-xs (1- x) y)))
+== {apply IH to (make-n-xs (1- x) y)}
+  (or (== a y)
+      (and (not (zp (1- x)))
+           (== a y)))
+== {simplify logical expression}
+  (and (not (zp x))
+       (== a y))
+QED for inductive case.
+
+; Your mentor is busy building her compiler and you have some free
+; time. After doing some LeetCode exercises, you get bored and decide
+; to go talk to the AI team. They are building an AI system that can solve
+; recurrence relations. They gave you a few examples that they want to
+; be able to solve.
+;
+; Find closed form solutions and prove them correct.
+; Hint: usually, the hard part is finding/guessing the closed-form 
+; solution. Generate examples and play around to figure this out.
+; Once you have the right solution, it's not too hard to prove it correct.
+
+(definec r1 (n :nat) :pos
+  (if (zp n)
+      1
+     (+ (r1 (1- n))
+	(expt 2 n))))
+
+; Use whatever induction scheme you like
+Lemma r1-closed-form:
+(=> (natp n)
+    (= (r1 n)
+       (- (expt 2 (+ n 1)) 1)))
+
+Base Case:
+n = 0
+
+Context:
+C1: (natp n)
+C2: (zp n)
+
+Goal:
+(= (r1 n)
+   (- (expt 2 (+ n 1)) 1))
+
+Proof:
+  (r1 n)
+== {C2, def of r1}
+  1
+== {C2, def of expt}
+  (- (expt 2 1) 1)
+== {simplify}
+  1
+QED for base case.
+
+Inductive Case:
+n = (1 + k), where \(k\) is a natural number
+
+Context:
+C1: (natp n)
+C2: (! (zp n))
+C3: (=> (natp (1- n))
+        (= (r1 (1- n))
+           (- (expt 2 (+ (1- n) 1)) 1))) Inductive Hypothesis
+Goal:
+(= (r1 n)
+   (- (expt 2 (+ n 1)) 1))
+
+Proof:
+  (r1 n)
+== {def of r1, C2}
+  (+ (r1 (1- n)) (expt 2 n))
+== {apply IH to (r1 (1- n))}
+  (+ (- (expt 2 (+ (1- n) 1)) 1)
+     (expt 2 n))
+== {simplify}
+  (+ (- (expt 2 (+ n 1)) (expt 2 n) 1) (expt 2 n))
+== {combine terms}
+  (- (expt 2 (+ n 1)) 1)
+QED for inductive case.
+
+
+(definec r2 (n :pos) :int
+  :skip-tests t
+  (match n
+    (1 0)
+    (2 3)
+    (3 8)
+    (& (+ (r2 (1- n)) (r2 (- n 2)) (- (r2 (- n 3))) 4))))
+
+; Use whatever induction scheme you like
+Lemma r2-closed-form:
+(=> (posp n)
+    (= (r2 n)
+       (- (* 4 n) 4)))
+
+Base Case 1:
+n = 1
+
+Context:
+C1: (posp n)
+
+Goal:
+(= (r2 n)
+   (- (* 4 n) 4))
+
+Proof:
+  (r2 n)
+== {def of r2}
+  0
+== {simplify}
+  (- (* 4 1) 4)
+QED for base case.
+
+Base Case 2:
+n = 2
+
+Context:
+C1: (posp n)
+
+Goal:
+(= (r2 n)
+   (- (* 4 n) 4))
+
+Proof:
+  (r2 n)
+== {def of r2}
+  3
+== {simplify}
+  (- (* 4 2) 4)
+QED for base case.
+
+Base Case 3:
+n = 3
+
+Context:
+C1: (posp n)
+
+Goal:
+(= (r2 n)
+   (- (* 4 n) 4))
+
+Proof:
+  (r2 n)
+== {def of r2}
+  8
+== {simplify}
+  (- (* 4 3) 4)
+QED for base case.
+
+Inductive Case:
+n > 3
+
+Context:
+C1: (posp n)
+C2: (=> (posp (1- n))
+        (= (r2 (1- n))
+           (- (* 4 (1- n)) 4))) Inductive Hypothesis 1
+C3: (=> (posp (- n 2))
+        (= (r2 (- n 2))
+           (- (* 4 (- n 2)) 4))) Inductive Hypothesis 2
+C4: (=> (posp (- n 3))
+        (= (r2 (- n 3))
+           (- (* 4 (- n 3)) 4))) Inductive Hypothesis 3
+Goal:
+(= (r2 n)
+   (- (* 4 n) 4))
+
+Proof:
+  (r2 n)
+== {def of r2}
+  (+ (r2 (1- n)) (r2 (- n 2)) (- (r2 (- n 3))) 4)
+== {apply IH 1, IH 2, IH 3}
+  (+ (- (* 4 (1- n)) 4)
+     (- (* 4 (- n 2)) 4)
+     (- (- (* 4 (- n 3)) 4))
+     4)
+== {simplify}
+  (- (* 4 n) 4)
+QED for inductive case.
+
+; After doing the above proofs, you decide to see if ACL2s can do this
+; for you.
+;
+; Write Lemma r1-closed-form in ACL2s as a property and see if ACL2s
+; can prove it automatically.
+
+(property (n :nat)
+  (= (r1 n)
+     (- (expt 2 (+ n 1)) 1)))
+
+
+; Write Lemma r2-closed-form in ACL2s as a property and see if ACL2s
+; can prove it automatically.
+
+(property (n :pos)
+  (= (r2 n)
+     (- (* 4 n) 4)))
+
+; This gives you an idea, which you pitch to the AI team. To test
+; their system, they can use their AI solver to propose solutions to
+; recurrences, which then get translated to ACL2s properties that can
+; be checked using testing and/or theorem proving.
+;
+; They try it and find lots of bugs -- machine-checked logic rescues
+; AI from the curse of machine-produced hallucination!
+;
+; The one downside of your coop experience is you have to figure out
+; whether to accept the return offer from the compiler team or the AI
+; team. Which one will you choose? Tell us below.
+
+"AI team"

@@ -1,0 +1,632 @@
+#|
+
+ CS 2800 Homework 6 - Fall 2024
+
+ - Due on Thurs, Oct. 24 by 10:00 PM
+
+ - You will have to work in groups. Groups should consist of 2-3
+   people. Make sure you are in exactly 1 group!  Use the
+   piazza "search for teammates" post to find teammates. Please give
+   students who don't have a team a home. If you can't find a team ask
+   Ankit for help on Piazza. 
+
+ - You will submit your hwk via gradescope. Instructions on how to
+   do that are on Piazza. If you need help, ask on Piazza.
+
+ - Submit the homework file (this file) on Gradescope. After clicking
+   on "Upload", you must add your group members to the submission by
+   clicking on "Add Group Member" and then filling their names. Every
+   group member can submit the homework and we will only grade the
+   last submission. You are responsible for making sure that your
+   group submits the right version of the homework for your final
+   submission. We suggest you submit early and often. Also, you will
+   get feedback on some problems when you submit. However, this
+   feedback does not determine your final grade, as we will manually
+   review submissions. Submission will be enabled a few days after the
+   homework is released, but well before the deadline.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ For this homework you will need to use ACL2s.
+
+ Technical instructions:
+
+ - Open this file in ACL2s.
+
+ - Insert your solutions into this file where indicated (usually as "XXX")
+
+ - Only add to the file. Do not remove or comment out anything pre-existing.
+
+ - Make sure the entire file is accepted by ACL2s. In particular, there must
+   be no "XXX" left in the code. If you don't finish all problems, comment
+   the unfinished ones out. Comments should also be used for any English
+   text that you may add. This file already contains many comments, so you
+   can see what the syntax is.
+
+ - When done, save your file and submit it without changing the name
+   of the file.
+
+ Below you are given a set of function definitions you can use.
+
+|#
+
+(definec ln (xs :tl) :nat
+  (if (endp xs) 0
+      (1+ (ln (cdr xs)))))
+
+(definec ap (as bs :tl) :tl
+  (if (endp as) bs
+      (cons (car as)
+            (ap (cdr as) bs))))
+
+(definec rv (zs :tl) :tl
+  (if (endp zs) nil
+      (ap (rv (cdr zs)) 
+          (list (car zs)))))
+
+(definec del (x :all ys :tl) :tl
+  (cond ((endp ys)        nil)
+        ((== x (car ys))  (del x (cdr ys)))
+        (t                (cons (car ys) 
+	                        (del x (cdr ys))))))
+
+(definec el (x :all ys :tl) :bool
+  (^ (consp ys)
+     (V (== x (car ys))
+        (el x (cdr ys)))))
+
+(definec nodups (xs :tl) :bool
+  (v (endp xs)
+     (^ (! (el (car xs) (cdr xs)))
+        (nodups (cdr xs)))))
+
+(definec num-unique (xs :tl) :nat
+  (cond ((endp xs) 0)
+        ((el (car xs) (cdr xs))
+         (num-unique (cdr xs)))
+        (t (1+ (num-unique (cdr xs))))))
+#|
+
+ Recall that for each of the definitions above we have both a
+ definitional axiom, and a contract theorem.  For example for ln, we
+ have the definitional axiom:
+
+ (=> (tlp xs)
+     (= (ln xs)
+        (if (endp xs) 0
+            (+ 1 (ln (cdr xs))))))
+
+ The contract theorem is:
+
+ (=> (tlp xs)
+     (natp (ln xs)))
+
+ You can use definitional axioms and contract theorems for free,
+ i.e., you don't have to prove anything. When you use a definitional
+ axiom, say for ln, your hint is "Def ln". When you use a contract
+ theorem, say for ln, your hint is "Contract ln".
+
+ For the rest of the homework, you can assume that the following is a
+ theorem.
+
+ Lemma ln-ap
+ (=> (^ (tlp xs) 
+        (tlp ys))
+     (= (ln (ap xs ys))
+        (+ (ln xs) (ln ys))))
+
+ When you use the lemma above, your hint is "Lemma ln-app"
+ but you have to provide a substitution.
+
+ We need to prove that the above is a theorem in ACL2s so that you can
+ use it.
+
+ We will do that by using named properties as follows.
+
+|#
+
+(property ln-ap (xs ys :tl)
+  (= (ln (ap xs ys))
+     (+ (ln xs) (ln ys))))
+
+#|
+
+ The above property is logically equivalent to the version of lemma
+ ln-ap in the comments above, as you can write it in an equivalent
+ way as follows.
+
+ (property ln-ap (x y :all)
+   (=> (^ (tlp xs) 
+          (tlp ys))
+       (= (ln (ap xs ys))
+          (+ (ln xs) (ln ys)))))
+
+ You can assume that any named properties we provide are theorems.
+
+|#
+
+#|
+
+ INSTRUCTIONS FOR EQUATIONAL PROOFS:
+
+ Use the proof format from the course book, RAP and the lecture
+ notes. In particular, see figures 4.1, 4.2 and 4.3.
+
+ Use the equational reasoning proof checker in ACL2s to check your
+ proofs.
+
+ If you open this file in ACL2s without changing the filename
+ extension (.proof), you can run the proof checker by clicking on
+ "Validate" as we have seen multiple times in class.
+
+ Before you start the homework, read about the proof format by
+ clicking on
+
+ "Proof Format Help" and "FAQ" (next to "Validate") in ACL2s.
+
+ If you get errors, read the error message, critically examine your
+ proofs and refer to the above mentioned documentation.
+
+ If you get counterexamples, recall that they are counterexamples to
+ your proof steps, not to the conjecture, so think about what hints
+ may be missing from your justification.
+
+ Here is an example proof that showcases the proof format.
+
+|#
+
+Conjecture 0:
+(=> (tlp xs)
+    (=> (tlp ys)
+        (=> (^ (consp xs)
+               (!= a (car xs))
+               (=> (tlp (cdr xs))
+                   (=> (el a (cdr xs))
+                       (el a (ap (cdr xs) ys)))))
+            (=> (el a xs)
+                (el a (ap xs ys))))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (tlp ys)
+       (consp xs)
+       (!= a (car xs))
+       (=> (^ (tlp (cdr xs))
+              (el a (cdr xs)))
+           (el a (ap (cdr xs) ys)))
+       (el a xs))
+    (el a (ap xs ys)))
+
+Context:
+C1. (tlp xs)
+C2. (tlp ys)
+C3. (consp xs)
+C4. (!= a (car xs))
+C5. (=> (^ (tlp (cdr xs)) (el a (cdr xs)))
+             (el a (ap (cdr xs) ys)))
+C6. (el a xs)
+
+Derived Context:
+D1. (tlp (cdr xs)) { Def tlp, C1, C3 }
+D2. (el a (cdr xs)) { Def el, C6, C3, C4 }
+D3. (el a (ap (cdr xs) ys)) { C5, D1, D2, MP }
+
+Goal: (el a (ap xs ys))
+
+Proof:
+(el a (ap xs ys))
+== { Def ap, C1, C3 }
+(el a (cons (car xs) (ap (cdr xs) ys)))
+== { Def el, cons axioms, C3 }
+(v (== a (car xs)) (el a (ap (cdr xs) ys)))
+== { D3, PL }
+t
+
+QED
+
+#|
+
+ You can skip the Exportation section if no exportation is possible.
+ You will not have to use Contract Completion for this homework.
+
+ You can skip the Context section if there are no hypotheses, something
+ that rarely happens. You can skip the Derived Context if you have
+ nothing to derive.
+
+ If you derive nil, you can skip the remaining sections.
+
+ If you derive the goal (in the context or derived context), you can
+ skip the remaining sections.
+
+ Finally you need the QED to indicate the end of your proof.
+
+ You can have multiple proofs in a file, so go ahead and try checking
+ this proof. You will see that conjecture 0 passes but the rest of the
+ conjectures do not because you need to populate the space between the
+ conjectures and the QEDs with a proof.  As you complete proofs, click
+ on "Validate" again to check them.
+
+ You may have to add hints we normally do not add in class.  One
+ example is that you sometimes have to add Contract hints. If you need
+ to use arithmetic, you can just write "arith" or "arithmetic".  You
+ can also use any propositional reasoning and can justify it by
+ writing "PL". The proof checker always allows arithmetic and PL
+ reasoning even if you don't provide the hints, but it is good style to
+ do so and we will expect you to do that on exams. If you want to use
+ evaluation, you have to write "Eval" and if you want to use the
+ axioms involving car, cdr and cons you can write "cons axioms" or
+ "car-cdr axioms" (they are equivalent).
+
+|#
+
+#|
+
+ DEBUGGING INFO.
+
+ We suggest that you create copies of this file with a single
+ conjecture. This will make validation go faster and will allow you to
+ better localize errors. Make sure to include any definitions and
+ properties that come before the conjecture you are working on.
+
+ Once you have proven all the conjectures, then add your solutions to
+ this file, validate and submit.
+
+ TIP: If you go to "Window", "Show View", "Problems" you will get a
+ list of the problems validation discovered in your open .proof files.
+
+ If you run into problems, you have a few options.
+
+ 0. Please first review the tips and suggestions outlined above and
+    review the documentation and errors/problems ACL2s reports.
+ 1. Go to office hours.
+ 2. Post a private query with your .proof file attached. This .proof
+    file can include only 1 conjecture in it. If it includes more, we
+    will not provide feedback.
+ 3. Submit what you have, ask for a regrade and pray that manual
+    review will give you some points. If your solutions are correct,
+    you will get full credit.
+
+|#
+
+#|
+ Prove the following using equational reasoning.
+|#
+
+Conjecture 1:
+(=> (tlp xs)
+    (=> (tlp ys)
+        (= (ln (ap xs ys)) 
+           (ln (ap ys xs)))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (tlp ys))
+    (= (ln (ap xs ys))
+       (ln (ap ys xs))))
+
+Context:
+C1. (tlp xs)
+C2. (tlp ys)
+
+Proof:
+(ln (ap xs ys))
+== { Lemma ln-ap, {xs = xs, ys = ys} }
+(+ (ln xs) (ln ys))
+== { Arithmetic, Commutativity of addition }
+(+ (ln ys) (ln xs))
+== { Lemma ln-ap, {xs = ys, ys = xs} }
+(ln (ap ys xs))
+
+QED
+
+#|
+Question 2: Prove the following related conjectures.
+|#
+
+Conjecture 2a:
+(=> (tlp xs)
+    (=> (endp xs)
+        (= (ln (rv xs)) (ln xs))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (endp xs))
+    (= (ln (rv xs))
+       (ln xs)))
+
+Context:
+C1. (tlp xs)
+C2. (endp xs)
+
+Proof:
+(ln (rv xs))
+== { Def rv, C2 }
+(ln nil)
+== { Def ln }
+0
+== { Def ln, C2 }
+(ln xs)
+
+QED
+
+Conjecture 2b:
+(=> (tlp xs)
+    (=> (^ (! (endp xs))
+           (=> (tlp (cdr xs))
+               (= (ln (rv (cdr xs)))
+                  (ln (cdr xs)))))
+        (= (ln (rv xs)) (ln xs))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (! (endp xs))
+       (=> (tlp (cdr xs))
+           (= (ln (rv (cdr xs)))
+              (ln (cdr xs)))))
+    (= (ln (rv xs))
+       (ln xs)))
+
+Context:
+C1. (tlp xs)
+C2. (! (endp xs))
+C3. (=> (tlp (cdr xs))
+         (= (ln (rv (cdr xs)))
+            (ln (cdr xs))))
+
+Derived Context:
+D1. (tlp (cdr xs)) { Def tlp, C1, C2 }
+
+Proof:
+(ln (rv xs))
+== { Def rv, C2 }
+(ln (ap (rv (cdr xs)) (list (car xs))))
+== { Lemma ln-ap, {xs = (rv (cdr xs)), ys = (list (car xs))} }
+(+ (ln (rv (cdr xs))) (ln (list (car xs))))
+== { C3, D1 }
+(+ (ln (cdr xs)) 1)
+== { Arithmetic }
+(+ 1 (ln (cdr xs)))
+== { Def ln, C2 }
+(ln xs)
+
+QED
+
+#|
+Question 3: Prove the following related conjectures.
+|#
+
+Conjecture 3a:
+(=> (^ (tlp xs)
+       (tlp ys))
+    (=> (endp xs)
+        (= (ln (del a (ap xs ys)))
+           (+ (ln (del a xs)) (ln (del a ys))))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (tlp ys)
+       (endp xs))
+    (= (ln (del a (ap xs ys)))
+       (+ (ln (del a xs)) (ln (del a ys)))))
+       
+Context:
+C1. (tlp xs)
+C2. (tlp ys)
+C3. (endp xs)
+
+Proof:
+(ln (del a (ap xs ys)))
+== { Def ap, C3 }
+(ln (del a ys))
+== { Def ln, as xs is empty and del does not change ys }
+(ln (del a ys))
+== { Def ln, addition with zero }
+(+ 0 (ln (del a ys)))
+== { Def ln, C3 }
+(+ (ln (del a xs)) (ln (del a ys)))
+
+QED
+
+Conjecture 4a:
+(=> (tlp xs)
+    (=> (! (endp xs))
+        (=> (^ (el (car xs) (cdr xs))
+               (=> (tlp (cdr xs))
+                   (<= (num-unique (cdr xs))
+                       (ln (cdr xs)))))
+            (<= (num-unique xs) (ln xs)))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (! (endp xs))
+       (el (car xs) (cdr xs))
+       (=> (tlp (cdr xs))
+           (<= (num-unique (cdr xs))
+               (ln (cdr xs)))))
+    (<= (num-unique xs) (ln xs)))
+
+Context:
+C1. (tlp xs)
+C2. (! (endp xs))
+C3. (el (car xs) (cdr xs))
+C4. (=> (tlp (cdr xs))
+         (<= (num-unique (cdr xs))
+             (ln (cdr xs))))
+
+Derived Context:
+D1. (tlp (cdr xs)) { Definition of tlp, C1, C2 }
+D2. (<= (num-unique (cdr xs)) (ln (cdr xs))) { C4, D1 }
+
+Proof:
+(<= (num-unique xs) (ln xs))
+== { Def num-unique, C3 }
+(<= (num-unique (cdr xs)) (ln (cdr xs)))
+== { D2 }
+true
+
+QED
+
+Conjecture 4b:
+(=> (tlp xs)
+    (=> (nodups xs)
+        (=> (^ (! (endp xs))
+               (=> (^ (tlp (cdr xs))
+                      (nodups (cdr xs)))
+                   (= (num-unique (cdr xs))
+                      (ln (cdr xs)))))
+            (= (num-unique xs) (ln xs)))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (nodups xs)
+       (! (endp xs))
+       (=> (^ (tlp (cdr xs))
+              (nodups (cdr xs)))
+           (= (num-unique (cdr xs))
+              (ln (cdr xs)))))
+    (= (num-unique xs) (ln xs)))
+
+Context:
+C1. (tlp xs)
+C2. (nodups xs)
+C3. (! (endp xs))
+C4. (=> (^ (tlp (cdr xs))
+          (nodups (cdr xs)))
+         (= (num-unique (cdr xs))
+            (ln (cdr xs))))
+
+Derived Context:
+D1. (tlp (cdr xs)) { Definition of tlp, C1, C3 }
+D2. (nodups (cdr xs)) { Definition of nodups, C2 }
+D3. (= (num-unique (cdr xs)) (ln (cdr xs))) { C4, D1, D2 }
+
+Proof:
+(= (num-unique xs) (ln xs))
+== { Def num-unique, non-empty xs implies including car xs }
+(= (+ 1 (num-unique (cdr xs))) (ln xs))
+== { D3, Def ln }
+(= (+ 1 (ln (cdr xs))) (ln xs))
+== { Arithmetic }
+true
+
+QED
+
+Conjecture 5:
+(=> (tlp xs)
+    (=> (tlp ys)
+        (=> (^ (! (endp xs))
+               (!= a (car xs))
+               (=> (^ (tlp (cdr xs))
+                      (tlp ys))
+	           (= (ln (del a (ap (cdr xs) ys)))
+		      (+ (ln (del a (cdr xs))) (ln (del a ys))))))
+	    (= (ln (del a (ap xs ys)))
+               (+ (ln (del a xs)) (ln (del a ys)))))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (tlp ys)
+       (! (endp xs))
+       (!= a (car xs))
+       (=> (^ (tlp (cdr xs))
+              (tlp ys))
+           (= (ln (del a (ap (cdr xs) ys)))
+              (+ (ln (del a (cdr xs))) (ln (del a ys))))))
+    (= (ln (del a (ap xs ys)))
+       (+ (ln (del a xs)) (ln (del a ys)))))
+
+Context:
+C1. (tlp xs)
+C2. (tlp ys)
+C3. (! (endp xs))
+C4. (!= a (car xs))
+C5. (=> (^ (tlp (cdr xs)) (tlp ys))
+         (= (ln (del a (ap (cdr xs) ys)))
+            (+ (ln (del a (cdr xs))) (ln (del a ys)))))
+
+Derived Context:
+D1. (tlp (cdr xs)) { Definition of tlp, C1, C3 }
+
+Proof:
+(ln (del a (ap xs ys)))
+== { Def ap, general rule }
+(ln (del a (cons (car xs) (ap (cdr xs) ys))))
+== { Def del, C4 }
+(ln (del a (ap (cdr xs) ys)))
+== { C5, D1 }
+(+ (ln (del a (cdr xs))) (ln (del a ys)))
+== { Def ln }
+(+ (ln (del a xs)) (ln (del a ys)))
+
+QED
+
+; Lemma el-ap
+; You can use this lemma in subsequent proofs.
+(property el-ap (xs ys :tl a :all)
+  (== (el a (ap xs ys))
+      (v (el a xs) (el a ys))))
+
+Conjecture 6a:
+(=> (tlp xs)
+    (=> (endp xs)
+        (== (el a (rv xs)) (el a xs))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (endp xs))
+    (== (el a (rv xs)) (el a xs)))
+
+Context:
+C1. (tlp xs)
+C2. (endp xs)
+
+Proof:
+(el a (rv xs))
+== { Def rv, C2 }
+(el a nil)
+== { Def el }
+false
+== { Def el, C2 }
+(el a xs)
+
+QED
+
+Conjecture 6b:
+(=> (tlp xs)
+    (=> (! (endp xs))
+        (=> (=> (tlp (cdr xs))
+                (== (el a (rv (cdr xs)))
+                    (el a (cdr xs))))
+            (== (el a (rv xs)) (el a xs)))))
+
+Exportation:
+(=> (^ (tlp xs)
+       (! (endp xs))
+       (=> (tlp (cdr xs))
+           (== (el a (rv (cdr xs)))
+               (el a (cdr xs)))))
+    (== (el a (rv xs)) (el a xs)))
+
+Context:
+C1. (tlp xs)
+C2. (! (endp xs))
+C3. (=> (tlp (cdr xs))
+         (== (el a (rv (cdr xs)))
+             (el a (cdr xs))))
+
+Derived Context:
+D1. (tlp (cdr xs)) { Definition of tlp, C1, C2 }
+
+Proof:
+(el a (rv xs))
+== { Def rv, general rule }
+(el a (ap (rv (cdr xs)) (list (car xs))))
+== { Lemma el-ap, {xs = (rv (cdr xs)), ys = (list (car xs))} }
+(v (el a (rv (cdr xs))) (el a (list (car xs))))
+== { C3, D1, Def el }
+(v (el a (cdr xs)) (== a (car xs)))
+== { Def el, simplify }
+(el a xs)
+
+QED
+

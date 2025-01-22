@@ -1,0 +1,455 @@
+;;; Homework 9 -- Due Sunday December 8 at 11 pm.
+;;;
+;;; Here are a few problems to give you some practice thinking with
+;;; loop invariants and accumulator-based, tail-recursive functional
+;;; code. You may want to read the section in RAP about
+;;; accumulator-based functions.
+;;;
+;;; Have fun...
+
+
+;;; Question 1: fast exponentiation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Compute x^n, where x^0 is defined to be 1 even when x=0.
+(definec npow/slow (x :rational n :nat) :rational
+  (if (= n 0) 1
+      (* x (npow/slow x (- n 1)))))
+
+;;; Here is a *much faster* accumulator version:
+
+(definec npow/tail (x :rational n :nat acc :rational) :rational
+  (cond ((= n 0) acc)
+        ((evenp n) (npow/tail (* x x)
+                              (/ n 2)
+                              acc))
+        (t (npow/tail (* x x)
+                      (/ (- n 1) 2)
+                      (* acc x)))))
+
+;;; 1.a: Define npow/fast, a fast drop-in replacement for npow/slow
+;;;      that uses npow/tail.
+
+(definec npow/fast (x :rational n :nat) :rational
+  (npow/tail x n 1))
+ 
+;;; Just a quick test of your function:
+(property npow/fast-works (x :rational n :nat)
+  ; :proofs? nil ; Uncomment this to restrict ACL2s to testing if needed.
+  (= (npow/slow x n) (npow/fast x n)))
+
+;;; 1.b: How many multiplications * will npow/tail do to raise x
+;;;      to some given power n? (A rough answer is fine.)
+
+"Npow/tail will do O(log n) multiplications to compute x^n."
+
+;;; 1.c: Give the general loop invariant for npow/tail as an ACL2s
+;;;      property; you may refer to npow/slow as needed.
+;;;      (You may use ":proofs? nil" if needed.)
+
+(property npow-loop-invariant (x :rational n :nat acc :rational)
+  ; :proofs? nil
+  (implies (and (natp n) (rationalp x) (rationalp acc))
+           (= (* acc (npow/slow x n))
+              (npow/tail x n acc))))
+ 
+;;; 1.d: Write a proof of your property -- show that your code
+;;;      preserves your stated loop invariant.
+
+Theorem npow-loop-invariant:
+(=> (and (natp n)
+          (rationalp x)
+          (rationalp acc))
+     (= (* acc (npow/slow x n))
+        (npow/tail x n acc)))
+
+Proof by: Induction on (natp n)
+
+Base Case:
+(=> (and (natp n)
+          (= n 0)
+          (rationalp x)
+          (rationalp acc))
+     (= (* acc (npow/slow x n))
+        (npow/tail x n acc)))
+
+Context:
+C1. (natp n)
+C2. (= n 0)
+C3. (rationalp x)
+C4. (rationalp acc)
+
+Goal: (= (* acc (npow/slow x n))
+          (npow/tail x n acc))
+
+Proof:
+   (npow/tail x n acc)
+== { C2, def npow/tail }
+   acc
+== { def npow/slow, C2 }
+   (* acc 1)
+== { simplify }
+   (* acc (npow/slow x n))
+QED
+
+Inductive Case:
+(=> (and (natp n)
+          (not (= n 0))
+          (rationalp x)
+          (rationalp acc)
+          (=> (and (natp (- n 1))
+                   (rationalp x)
+                   (rationalp acc))
+              (= (* acc (npow/slow x (- n 1)))
+                 (npow/tail x (- n 1) acc))))
+     (= (* acc (npow/slow x n))
+        (npow/tail x n acc)))
+
+Context:
+C1. (natp n)
+C2. (not (= n 0))
+C3. (rationalp x)
+C4. (rationalp acc)
+C5. (=> (and (natp (- n 1))
+             (rationalp x)
+             (rationalp acc))
+        (= (* acc (npow/slow x (- n 1)))
+           (npow/tail x (- n 1) acc))) ;; Inductive Hypothesis
+
+Derived Context:
+D1. (natp (- n 1)) { C1, def natp }
+D2. (= (* acc (npow/slow x (- n 1)))
+        (npow/tail x (- n 1) acc)) { D1, C3, C4, C5 }
+
+Goal: (= (* acc (npow/slow x n))
+          (npow/tail x n acc))
+
+Proof:
+Case 1: `n` is even.
+   (npow/tail x n acc)
+== { C2, evenp branch of def npow/tail }
+   (npow/tail (* x x) (/ n 2) acc)
+== { Induction on (/ n 2), D2 }
+   (* acc (npow/slow (* x x) (/ n 2)))
+== { def npow/slow, evenp }
+   (* acc (npow/slow x n))
+QED
+
+Case 2: `n` is odd.
+   (npow/tail x n acc)
+== { C2, oddp branch of def npow/tail }
+   (npow/tail (* x x) (/ (- n 1) 2) (* acc x))
+== { Induction on (/ (- n 1) 2), D2 }
+   (* (* acc x) (npow/slow (* x x) (/ (- n 1) 2)))
+== { def npow/slow, oddp }
+   (* acc (npow/slow x n))
+QED
+QED
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Question 2: Computing averages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Soon, Profs. Vesely & Shivers will be busily computing final grades.
+;;; To compute the average of a list of numbers, we need to first sum all
+;;; the numbers in the list, and then divide by the length of the list.
+;;; Here are two functions that will do these two tasks: sum a list of
+;;; numbers, and find the length of a given list:
+
+(defdata lor (listof rational))
+
+(definec sum/slow (xs :lor) :rational
+  (if (endp xs) 0
+      (+ (car xs)
+         (sum/slow (cdr xs)))))
+
+(definec len/slow (xs :tl) :nat
+  (if (endp xs) 0
+      (+ 1 (len/slow (cdr xs)))))
+
+;;; 2.a: Define tail-recusive, accumulator-based variants for these two
+;;;      functions; call them sum/tail and len/tail. These are *not*
+;;;      drop-in replacements for sum/slow and len/slow -- they are
+;;;      helper functions that each take an extra accumulator argument.
+
+(definec sum/tail (xs :lor acc :rational) :rational
+  (if (endp xs)
+      acc
+      (sum/tail (cdr xs) (+ acc (car xs)))))
+
+(definec len/tail (xs :tl acc :nat) :nat
+  (if (endp xs)
+      acc
+      (len/tail (cdr xs) (+ 1 acc))))
+
+;;; 2.b: Define sum/fast and len/fast, replacements for sum/slow and len/slow
+;;;      that use the tail-recursive helper functions you defined in question
+;;;      2.a.
+
+(definec sum/fast (xs :lor) :rational
+  (sum/tail xs 0))
+
+(definec len/fast (xs :tl) :nat
+  (len/tail xs 0))
+
+(property sum/fast-works (xs :lor)
+  ; :proofs? nil ; Uncomment this to restrict ACL2s to testing if needed.
+  (= (sum/slow xs) (sum/fast xs)))
+
+(property len/fast-works (xs :tl)
+  ; :proofs? nil ; Uncomment this to restrict ACL2s to testing if needed.
+  (= (len/slow xs) (len/fast xs)))
+
+;;; 2.c: Write a property for sum/tail specifying what it does
+;;;      given general inputs for all arguments, in terms of sum/slow.
+;;;      Do the same for len/tail, in terms of len/slow. (Again --
+;;;      we're asking you to write the *loop invariants* for your two
+;;;      iterative pieces of code.) You may use ":proofs? nil" if needed.
+
+(property sum-loop-invariant (xs :lor acc :rational)
+  ; :proofs? nil
+  (= (+ acc (sum/slow xs))
+     (sum/tail xs acc)))
+
+(property len-loop-invariant (xs :tl acc :nat)
+  ; :proofs? nil
+  (= (+ acc (len/slow xs))
+     (len/tail xs acc)))
+
+;;; 2.d: Write a proof for each of your properties / loop invariants:
+
+Theorem sum-loop-invariant:
+(=> (and (listp xs)
+          (rationalp acc))
+     (= (+ acc (sum/slow xs))
+        (sum/tail xs acc)))
+
+Proof by: Induction on (tlp xs)
+
+Base Case:
+(=> (and (listp xs)
+          (endp xs)
+          (rationalp acc))
+     (= (+ acc (sum/slow xs))
+        (sum/tail xs acc)))
+
+Context:
+C1. (listp xs)
+C2. (endp xs)
+C3. (rationalp acc)
+
+Goal: (= (+ acc (sum/slow xs))
+          (sum/tail xs acc))
+
+Proof:
+   (sum/tail xs acc)
+== { C2, def sum/tail }
+   acc
+== { def sum/slow, C2 }
+   (+ acc 0)
+== { simplify }
+   (+ acc (sum/slow xs))
+QED
+
+Inductive Case:
+(=> (and (listp xs)
+          (not (endp xs))
+          (rationalp acc)
+          (=> (and (listp (cdr xs))
+                   (rationalp acc))
+              (= (+ acc (sum/slow (cdr xs)))
+                 (sum/tail (cdr xs) acc))))
+     (= (+ acc (sum/slow xs))
+        (sum/tail xs acc)))
+
+Context:
+C1. (listp xs)
+C2. (not (endp xs))
+C3. (rationalp acc)
+C4. (=> (and (listp (cdr xs))
+             (rationalp acc))
+        (= (+ acc (sum/slow (cdr xs)))
+           (sum/tail (cdr xs) acc)))
+
+Goal: (= (+ acc (sum/slow xs))
+          (sum/tail xs acc))
+
+Proof:
+   (sum/tail xs acc)
+== { def sum/tail, C2 }
+   (sum/tail (cdr xs) (+ acc (car xs)))
+== { Induction, C4 }
+   (+ (+ acc (car xs)) (sum/slow (cdr xs)))
+== { def sum/slow, C2 }
+   (+ acc (sum/slow xs))
+QED
+
+Theorem len-loop-invariant:
+(=> (and (listp xs)
+          (natp acc))
+     (= (+ acc (len/slow xs))
+        (len/tail xs acc)))
+
+Proof by: Induction on (tlp xs)
+
+Base Case:
+(=> (and (listp xs)
+          (endp xs)
+          (natp acc))
+     (= (+ acc (len/slow xs))
+        (len/tail xs acc)))
+
+Context:
+C1. (listp xs)
+C2. (endp xs)
+C3. (natp acc)
+
+Goal: (= (+ acc (len/slow xs))
+          (len/tail xs acc))
+
+Proof:
+   (len/tail xs acc)
+== { C2, def len/tail }
+   acc
+== { def len/slow, C2 }
+   (+ acc 0)
+== { simplify }
+   (+ acc (len/slow xs))
+QED
+
+Inductive Case:
+(=> (and (listp xs)
+          (not (endp xs))
+          (natp acc)
+          (=> (and (listp (cdr xs))
+                   (natp acc))
+              (= (+ acc (len/slow (cdr xs)))
+                 (len/tail (cdr xs) acc))))
+     (= (+ acc (len/slow xs))
+        (len/tail xs acc)))
+
+Context:
+C1. (listp xs)
+C2. (not (endp xs))
+C3. (natp acc)
+C4. (=> (and (listp (cdr xs))
+             (natp acc))
+        (= (+ acc (len/slow (cdr xs)))
+           (len/tail (cdr xs) acc)))
+
+Goal: (= (+ acc (len/slow xs))
+          (len/tail xs acc))
+
+Proof:
+   (len/tail xs acc)
+== { def len/tail, C2 }
+   (len/tail (cdr xs) (+ acc 1))
+== { Induction, C4 }
+   (+ (+ acc 1) (len/slow (cdr xs)))
+== { def len/slow, C2 }
+   (+ acc (len/slow xs))
+QED
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Question 3: Factorial
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Here's the classic: recursive factorial.
+
+(definec fact/rec (n :nat) :nat
+  (if (= n 0) 1
+      (* n (fact/rec (- n 1)))))
+
+;;; 3.a: Write fact/tail and fact: the former is the iterative /
+;;;      tail-recursive helper function, and the latter a drop-in
+;;;      replacement for fact/rec that works by invoking fact/tail.
+    
+(definec fact/tail (n :nat acc :nat) :nat
+  (if (= n 0)
+      acc
+      (fact/tail (- n 1) (* acc n))))
+
+(definec fact (n :nat) :nat
+  (fact/tail n 1))
+
+;;; Just a quick test of your function:
+(property fact-works (n :nat)
+  ; :proofs? nil ; Uncomment this to restrict ACL2s to testing if needed.
+  (= (fact/rec n) (fact n)))
+
+;;; 3.b: Provide the loop invariant for your iterative code
+;;;      (that is, fact/tail) as a property connecting its
+;;;      general behavior to fact/rec. (You may use ":proofs? nil"
+;;;      if needed.)
+
+(property fact-loop-invariant (n :nat acc :nat)
+  ; :proofs? nil
+  (= (* acc (fact/rec n))
+     (fact/tail n acc)))
+
+;;; 3.c: Provide a proof of your property -- show that your code
+;;;      fact/tail does, in fact, preserve your loop invariant.
+
+Theorem fact-loop-invariant:
+(=> (and (natp n)
+          (natp acc))
+     (= (* acc (fact/rec n))
+        (fact/tail n acc)))
+
+Proof by: Induction on n
+
+Base Case:
+(=> (and (natp n)
+          (= n 0)
+          (natp acc))
+     (= (* acc (fact/rec n))
+        (fact/tail n acc)))
+
+Context:
+C1. (natp n)
+C2. (= n 0)
+C3. (natp acc)
+
+Goal: (= (* acc (fact/rec n))
+          (fact/tail n acc))
+
+Proof:
+   (fact/tail n acc)
+== { def fact/tail, C2 }
+   acc
+== { def fact/rec, C2 }
+   (* acc 1)
+== { simplify }
+   (* acc (fact/rec n))
+QED
+
+Inductive Case:
+(=> (and (natp n)
+          (/= n 0)
+          (natp acc)
+          (=> (and (natp (- n 1))
+                   (natp (* acc n)))
+              (= (* (* acc n) (fact/rec (- n 1)))
+                 (fact/tail (- n 1) (* acc n)))))
+     (= (* acc (fact/rec n))
+        (fact/tail n acc)))
+
+Context:
+C1. (natp n)
+C2. (/= n 0)
+C3. (natp acc)
+C4. (=> (and (natp (- n 1))
+             (natp (* acc n)))
+        (= (* (* acc n) (fact/rec (- n 1)))
+           (fact/tail (- n 1) (* acc n))))
+
+Goal: (= (* acc (fact/rec n))
+          (fact/tail n acc))
+
+Proof:
+   (fact/tail n acc)
+== { def fact/tail, C2 }
+   (fact/tail (- n 1) (* acc n))
+== { Induction, C4 }
+   (* (* acc n) (fact/rec (- n 1)))
+== { def fact/rec, C2 }
+   (* acc (fact/rec n))
+QED
